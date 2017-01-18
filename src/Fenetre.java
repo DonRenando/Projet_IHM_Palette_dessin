@@ -41,15 +41,18 @@ class Fenetre extends JFrame {
 
             @Override
             public void mouseReleased(MouseEvent mouseEvent) {
-                if (!panel.getStroke().isEmpty())
-                    monIvy.sendMsg("coord=" + panel.getStroke().toString());
+                if (!panel.getStroke().isEmpty()) {
 
-                panel.getStroke().normalize();
-                System.out.println(panel.getStroke());
-                Reconnaissance.comparaison(Reconnaissance.reconnaissance(panel.getStroke(), Forme.ROND.split(";")),
-                        Reconnaissance.reconnaissance(panel.getStroke(), Forme.CARRE.split(";")),
-                        Reconnaissance.reconnaissance(panel.getStroke(), Forme.TRAIT.split(";")),
-                        Reconnaissance.reconnaissance(panel.getStroke(), Forme.Z.split(";")));
+                    panel.getStroke().normalize();
+                    String result = Reconnaissance.comparaison(Reconnaissance.reconnaissance(panel.getStroke(), Forme.ROND.split(";")),
+                            Reconnaissance.reconnaissance(panel.getStroke(), Forme.CARRE.split(";")),
+                            Reconnaissance.reconnaissance(panel.getStroke(), Forme.TRAIT.split(";")),
+                            Reconnaissance.reconnaissance(panel.getStroke(), Forme.Z.split(";")));
+                    System.out.println(result);
+
+
+                    monIvy.sendMsg("Geste forme=" + result);
+                }
 
             }
 

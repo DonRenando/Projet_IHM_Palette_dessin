@@ -31,20 +31,37 @@ public class Reconnaissance {
             result += (int) Math.sqrt((Math.pow(x1 - x3, 2) + Math.pow(y1 - y3, 2)));
             cpt++;
         }
+        System.out.println(result);
         return result;
     }
 
 
-    public static void comparaison(int rond, int carre, int trait, int z) {
-        if ((carre < rond) && (carre < trait) && (carre < z)) {
-            System.out.println("C'est un carre");
-        } else if ((rond < carre) && (rond < trait) && (rond < z)) {
-            System.out.println("c'est un rond");
-        } else if ((trait < carre) && (trait < rond) && (trait < z)) {
-            System.out.println("c'est un trait");
-        } else if ((z < carre) && (z < rond) && (z < trait)) {
-            System.out.println("c'est un z");
+    public static String comparaison(int rond, int carre, int trait, int z) {
+        String result = null;
+        if(!isCorrect(rond) && !isCorrect(carre) &&!isCorrect(trait) &&!isCorrect(z) )
+        {
+            result="ERROR";
         }
+        else if ((carre < rond) && (carre < trait) && (carre < z)) {
+            result="RECTANGLE";
+        } else if ((rond < carre) && (rond < trait) && (rond < z)) {
+            result="ROND";
+        } else if ((trait < carre) && (trait < rond) && (trait < z)) {
+            result="TRAIT";
+        } else if ((z < carre) && (z < rond) && (z < trait)) {
+            result="Z";
+        }
+        else{
+            result="ERROR";
+        }
+    return result;
+    }
 
+    public static boolean isCorrect(int forme){
+        boolean result = true;
+        if(forme > 1000){
+            result = false;
+        }
+        return result;
     }
 }
