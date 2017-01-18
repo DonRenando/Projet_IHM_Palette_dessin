@@ -1,4 +1,5 @@
 import fr.dgac.ivy.IvyException;
+import model.Forme;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
@@ -34,12 +35,22 @@ class Fenetre extends JFrame {
             public void mousePressed(MouseEvent mouseEvent) {
                 if (SwingUtilities.isLeftMouseButton(mouseEvent))
                     panel.getStroke().addPoint(mouseEvent.getX(), mouseEvent.getY());
+
                 panel.stroke = new Stroke();
             }
 
             @Override
             public void mouseReleased(MouseEvent mouseEvent) {
-                monIvy.sendMsg("coord=" + panel.getStroke().toString());
+                if (!panel.getStroke().isEmpty())
+                    monIvy.sendMsg("coord=" + panel.getStroke().toString());
+
+                panel.getStroke().normalize();
+                System.out.println(panel.getStroke());
+                Reconnaissance.comparaison(Reconnaissance.reconnaissance(panel.getStroke(), Forme.ROND.split(";")),
+                        Reconnaissance.reconnaissance(panel.getStroke(), Forme.CARRE.split(";")),
+                        Reconnaissance.reconnaissance(panel.getStroke(), Forme.TRAIT.split(";")),
+                        Reconnaissance.reconnaissance(panel.getStroke(), Forme.Z.split(";")));
+
             }
 
 
