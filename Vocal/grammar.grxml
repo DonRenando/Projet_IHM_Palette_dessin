@@ -13,30 +13,34 @@
    <rule id="answer" scope="public"> 
     <ruleref special="GARBAGE" /> 
     <one-of>
-      <item><ruleref uri="#deplacement"/></item>
-      <item><ruleref uri="#initialiser"/></item>
+      <item><ruleref uri="#couleur"/></item>
+      <item><ruleref uri="#action"/></item>
     </one-of>          
     <tag>out = rules.latest().text;</tag>
     <ruleref special="GARBAGE" />
   </rule>
-       
-   <rule id="deplacement">
-    <item>déplacer <ruleref uri="#position"/></item>
+     
+   <rule id="couleur">
+    <item>couleur <ruleref uri="#couleur_nom"/></item>
   </rule> 
   
-  <rule id="initialiser">
-      <item>initialiser</item>
+  <rule id="action">
+      <one-of>
+		  <item>créer</item>
+		  <item>supprimer</item>
+		  <item>déplacer</item>
+		</one-of>   
       <tag>out.text  = "Action:" + meta.current().text;</tag>
   </rule>
   
-  <rule id="position">
+  <rule id="couleur_nom">
     <one-of>
-      <item>en haut</item>
-      <item>en bas</item>
-      <item>à gauche</item>
-      <item>à droite</item>
+      <item>rouge</item>
+      <item>bleu</item>
+      <item>vert</item>
+      <item>jaune</item>
     </one-of>      
-    <tag>out.text  = "Action:deplacement Position:" + meta.current().text;</tag>
+    <tag>out.text  = "Action:couleur:" + meta.current().text;</tag>
   </rule>
   
 </grammar>
