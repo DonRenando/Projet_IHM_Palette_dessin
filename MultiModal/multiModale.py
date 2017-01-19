@@ -1,6 +1,6 @@
 from ivy.std_api import IvyBindMsg, IvySendMsg, IvyMainLoop
 
-import myIvy
+from LibCommon import myIvy
 from threading import Timer
 
 
@@ -75,6 +75,6 @@ class MyIvyMultiModale(myIvy.MyIvy):
         IvyBindMsg(self.a.new_vocal_action, '^VOCAL action=(.*)')
 
 
-MyIvyMultiModale("MultiModal", "172.31.190.255:2010")
+MyIvyMultiModale("MultiModal", "127.255.255.255:2010")
 
 IvyMainLoop()
