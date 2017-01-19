@@ -26,11 +26,11 @@
   
   <rule id="action">
       <one-of>
-		  <item>créer</item>
-		  <item>supprimer</item>
-		  <item>déplacer</item>
+		  <item>ici</item>
+		  <item>ça</item>
+		  <item>là</item>
 		</one-of>   
-      <tag>out.text  = "Action:" + meta.current().text;</tag>
+      <tag>out.text  = "VOCAL action=" + meta.current().text;</tag>
   </rule>
   
   <rule id="couleur_nom">
@@ -40,7 +40,7 @@
       <item>vert</item>
       <item>jaune</item>
     </one-of>      
-    <tag>out.text  = "Action:couleur:" + meta.current().text;</tag>
+    <tag>out.text  = "VOCAL couleur=" + meta.current().text;</tag>
   </rule>
   
 </grammar>
