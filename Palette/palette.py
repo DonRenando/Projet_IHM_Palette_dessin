@@ -38,6 +38,7 @@ class Rectangle(Form):
 class MyTurtle(turtle.Turtle):
     def __init__(self, color="green", bgcolor="#FFFFFF"):
         turtle.Turtle.__init__(self, shape="turtle")
+
         self.bgcolor = bgcolor
 
         self.pensize(3)
@@ -83,10 +84,10 @@ class MyTurtle(turtle.Turtle):
 
     def draw_rectangle(self, rectangle):
         self.__setup_draw(rectangle.x, rectangle.y, rectangle.color)
-        self.setposition(rectangle.x + rectangle.vert, rectangle.x)
-        self.setposition(rectangle.x + rectangle.vert, rectangle.x + rectangle.hor)
-        self.setposition(rectangle.x, rectangle.x + rectangle.hor)
-        self.setposition(rectangle.x, rectangle.x)
+        self.setposition(rectangle.x + rectangle.hor, rectangle.y)
+        self.setposition(rectangle.x + rectangle.hor, rectangle.y + rectangle.vert)
+        self.setposition(rectangle.x, rectangle.y + rectangle.vert)
+        self.setposition(rectangle.x, rectangle.y)
         self.__end_draw()
 
     def delete_rectangle(self, rectangle):
@@ -104,16 +105,22 @@ class MyIvyPalette(myIvy.MyIvy):
 
     def create(self, agent, *larg):
         if larg[0] == "RECTANGLE":
-            r = Rectangle(larg[1], larg[2], 200, 100, larg[3])
+            r = Rectangle(self.__my_int(larg[1]), self.__my_int(larg[2]), 200, 100, larg[3])
             myturtle.draw_rectangle(r)
             LIST_FORM.append(r)
         elif larg[0] == "ROND":
-            c = Circle(larg[1], larg[2], 50, larg[3])
+            c = Circle(self.__my_int(larg[1]), self.__my_int(larg[2]), 50, larg[3])
             myturtle.draw_circle(c)
-            LIST_FORM.append(Circle(larg[1], larg[2], larg[3]))
+            LIST_FORM.append(Circle(self.__my_int(larg[1]), self.__my_int(larg[2]), larg[3]))
+
+    def __my_int(self, str):
+        print(int(str.split(".")[0]))
+        return  int(str.split(".")[0])
 
 
 myturtle = MyTurtle()
+myturtle.penup()
+myturtle.color("green")
 
 my_ivy = MyIvyPalette("Palette", "127.255.255.255:2010")
 

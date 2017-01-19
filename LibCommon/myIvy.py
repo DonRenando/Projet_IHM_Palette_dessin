@@ -15,6 +15,8 @@ class MyIvy:
                 self.oncxproc,  # handler called on connection/disconnection
                 self.ondieproc)  # handler called when a <die> message is received
 
+        self._createbind()
+
         IvyStart(self.bus)
 
     def oncxproc(self, agent, connected):
