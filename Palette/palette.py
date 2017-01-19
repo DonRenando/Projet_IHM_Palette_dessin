@@ -15,7 +15,7 @@ class Form:
 
 
 class Circle(Form):
-    def __init__(self, x, y, radius, color="red"):
+    def __init__(self, x, y, radius=50, color="red"):
         super().__init__(x, y)
         self.radius = radius
         self.color = color
@@ -25,7 +25,7 @@ class Circle(Form):
 
 
 class Rectangle(Form):
-    def __init__(self, x, y, vert, hor, color="red"):
+    def __init__(self, x, y, vert=50, hor=80, color="red"):
         super().__init__(x, y)
         self.vert = vert
         self.hor = hor
@@ -74,6 +74,10 @@ class MyTurtle(turtle.Turtle):
         self.circle(circle.radius)
         self.__end_draw()
 
+    def delete_circle(self, circle):
+        circle.color = self.bgcolor
+        self.draw_rectangle(circle)
+
     def draw_rectangle_here(self, vert, hor, color="red"):
         self.draw_rectangle(Rectangle(self.xcor(), self.ycor(), vert, hor, color))
 
@@ -86,7 +90,8 @@ class MyTurtle(turtle.Turtle):
         self.__end_draw()
 
     def delete_rectangle(self, rectangle):
-        self.__setup_draw(rectangle.x, rectangle.y, color=self.bgcolor)
+        rectangle.color = self.bgcolor
+        self.draw_rectangle(rectangle)
 
     def onclick(self, x, y, **kwargs):
         myturtle.goto(x, y)
@@ -109,17 +114,6 @@ class MyIvyPalette(myIvy.MyIvy):
 
 
 myturtle = MyTurtle()
-
-
-
-
-
-
-myturtle.draw_circle(Circle(120, 180, 50))
-myturtle.draw_rectangle(Rectangle(300, 300, 100, 200, color="blue"))
-
-myturtle.setposition(500, 450)
-myturtle.draw_circle_here()
 
 my_ivy = MyIvyPalette("Palette", "127.255.255.255:2010")
 
