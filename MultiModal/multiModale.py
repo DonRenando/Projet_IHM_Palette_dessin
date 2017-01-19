@@ -18,33 +18,40 @@ class automate:
     def new_geste(self, agent, *larg):
         print("new_geste " + str(larg))
         print("state = " + str(self.state))
+
         if self.state == 0:
             self.__reinit_timer()
             self.form = larg[0]
             self.state = 1
+
         print("endstate = " + str(self.state))
 
     def new_click(self, agent, *larg):
         print("new click " + str(larg))
         print("state = " + str(self.state))
+
         if self.state == 1:
             self.__reinit_timer()
             self.xy = (larg[0], larg[1])
             self.state = 2
+
         elif self.state == 3:
             self.__reinit_timer()
             self.xy = (larg[0], larg[1])
             self.state = 1
+
         print("endstate = " + str(self.state))
 
     def new_vocal_couleur(self, agent, *larg):
         print("new vocal couleur " + str(larg))
         print("state = " + str(self.state))
+
         if self.state == 1 and larg[0].split(" ")[0] in self.list_color and int(larg[0].split(",")[1][0:2]) > 85:
             print(larg[0].split(" ")[0])
             self.__reinit_timer()
             self.color = self.list_color[larg[0].split(" ")[0]]
             self.state = 3
+
         elif self.state == 2:
             self.__reinit_timer()
             self.color = larg[0]
