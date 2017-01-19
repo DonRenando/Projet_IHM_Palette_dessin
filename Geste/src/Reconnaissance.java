@@ -31,7 +31,6 @@ public class Reconnaissance {
             result += (int) Math.sqrt((Math.pow(x1 - x3, 2) + Math.pow(y1 - y3, 2)));
             cpt++;
         }
-        System.out.println(result);
         return result;
     }
 
