@@ -11,7 +11,7 @@ class ivyTranslater implements IvyMessageListener {
     ivyTranslater() throws IvyException {
         // initialization, name and ready message
         bus = new Ivy("IvyTranslater", "Geste", null);
-        bus.start("172.31.190.255:2010"); // starts the bus on the default domain
+        bus.start("127.255.255.255:2010"); // starts the bus on the default domain
     }
 
 
