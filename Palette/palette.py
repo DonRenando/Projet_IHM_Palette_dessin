@@ -2,37 +2,101 @@ import turtle
 from LibCommon import myIvy
 from ivy.std_api import *
 
-LIST_FORM = []
+
 
 
 class Form:
-    def __init__(self, x, y):
+    def __init__(self, t, x, y, color):
+        self.t = t
         self.x = x
         self.y = y
+        self.color = color
+        self.color_default = color
+
+    def _setup_draw(self, x, y, color):
+        self.t.penup()
+        self.t.setposition(x, y)
+        self.t.pendown()
+        self.t.color(color, color)
+        self.t.begin_fill()
+
+    def _end_draw(self):
+        self.t.end_fill()
+        self.t.color(self.t.my_turtle_color)
+        self.t.penup()
+        self.t.home()
 
     def is_in(self, x, y):
         return x == self.x and y == self.y
 
+    def draw(self):
+        self._setup_draw(self.x, self.y, self.color)
+        self.t.dot()
+        self._end_draw()
 
-class Circle(Form):
-    def __init__(self, x, y, radius=50, color="red"):
-        super().__init__(x, y)
+    def delete(self):
+        self.color = self.t.bgcolor
+        self.draw()
+        self.color = self.color_default
+
+    @staticmethod
+    def aim_delete(l_form, type_form, x, y, color=""):
+        for form in l_form:
+            if form.__class__.__name__.upper() == type_form and form.is_in(x, y) \
+                    and color in ("", form.color):
+                form.delete()
+                l_form.remove(form)
+                break
+
+        for form in l_form:
+            if form.is_in(x, y):
+                form.draw()
+        return l_form
+
+    @staticmethod
+    def aim_move(l_form, x, y, tx, ty, color=""):
+        for form in l_form:
+            if form.is_in(x, y)\
+                    and color in ("", form.color):
+                form.delete()
+                form.x = tx
+                form.y = ty
+                form.draw()
+                break
+        return l_form
+
+
+class Ellipse(Form):
+    def __init__(self, t, x, y, radius=50, color="red"):
+        super().__init__(t, x, y, color)
         self.radius = radius
-        self.color = color
 
     def is_in(self, x, y):
         return (x - self.x) ** 2 + (y - self.y) ** 2 < self.radius ** 2
 
+    def draw(self):
+        self._setup_draw(self.x, self.y, self.color)
+        self.t.circle(self.radius)
+        self._end_draw()
+
 
 class Rectangle(Form):
-    def __init__(self, x, y, vert=50, hor=80, color="red"):
-        super().__init__(x, y)
+    def __init__(self, t, x, y, vert=50, hor=80, color="red"):
+        super().__init__(t, x, y, color)
         self.vert = vert
         self.hor = hor
         self.color = color
 
     def is_in(self, x, y):
         return 0 <= (x - self.x) <= self.hor and 0 <= (y - self.y) <= self.vert
+
+    def draw(self):
+        self._setup_draw(self.x, self.y, self.color)
+        self.t.setposition(self.x + self.hor, self.y)
+        self.t.setposition(self.x + self.hor, self.y + self.vert)
+        self.t.setposition(self.x, self.y + self.vert)
+        self.t.setposition(self.x, self.y)
+        self._end_draw()
 
 
 class MyTurtle(turtle.Turtle):
@@ -54,68 +118,36 @@ class MyTurtle(turtle.Turtle):
         self.screen.listen()
         self.screen.onclick(self.onclick)
 
-    def __setup_draw(self, x, y, color):
-        self.penup()
-        self.setposition(x, y)
-        self.pendown()
-        self.color("black", color)
-        self.begin_fill()
-
-    def __end_draw(self):
-        self.end_fill()
-        self.color(self.my_turtle_color)
-        self.penup()
-        self.home()
-
-    def draw_circle_here(self, color="red", radius=50):
-        self.draw_circle(Circle(self.xcor(), self.ycor(), radius, color))
-
-    def draw_circle(self, circle):
-        self.__setup_draw(circle.x, circle.y, circle.color)
-        self.circle(circle.radius)
-        self.__end_draw()
-
-    def delete_circle(self, circle):
-        circle.color = self.bgcolor
-        self.draw_rectangle(circle)
-
-    def draw_rectangle_here(self, vert, hor, color="red"):
-        self.draw_rectangle(Rectangle(self.xcor(), self.ycor(), vert, hor, color))
-
-    def draw_rectangle(self, rectangle):
-        self.__setup_draw(rectangle.x, rectangle.y, rectangle.color)
-        self.setposition(rectangle.x + rectangle.hor, rectangle.y)
-        self.setposition(rectangle.x + rectangle.hor, rectangle.y + rectangle.vert)
-        self.setposition(rectangle.x, rectangle.y + rectangle.vert)
-        self.setposition(rectangle.x, rectangle.y)
-        self.__end_draw()
-
-    def delete_rectangle(self, rectangle):
-        rectangle.color = self.bgcolor
-        self.draw_rectangle(rectangle)
-
     def onclick(self, x, y, **kwargs):
         myturtle.goto(x, y)
         IvySendMsg("PALETTE x={} y={}".format(x, y))
 
 
 class MyIvyPalette(myIvy.MyIvy):
+    LIST_FORM = []
     def _createbind(self):
-        IvyBindMsg(self.create, '^MULTIMODAL forme=(.*) x=(.*) y=(.*) couleur=(.*)')
+        IvyBindMsg(self.create, '^MULTIMODAL:creer forme=(.*) x=(.*) y=(.*) couleur=(.*)')
+        IvyBindMsg(self.move, '^MULTIMODAL:deplacer ca_x=(.*) ca_y=(.*) la_x=(.*) la_y=(.*) couleur=(.*)')
+        IvyBindMsg(self.delete, '^MULTIMODAL:supprimer forme=(.*) x=(.*) y=(.*) couleur=(.*)')
 
     def create(self, agent, *larg):
         if larg[0] == "RECTANGLE":
-            r = Rectangle(self.__my_int(larg[1]), self.__my_int(larg[2]), 200, 100, larg[3])
-            myturtle.draw_rectangle(r)
-            LIST_FORM.append(r)
-        elif larg[0] == "ROND":
-            c = Circle(self.__my_int(larg[1]), self.__my_int(larg[2]), 50, larg[3])
-            myturtle.draw_circle(c)
-            LIST_FORM.append(Circle(self.__my_int(larg[1]), self.__my_int(larg[2]), larg[3]))
+            r = Rectangle(myturtle, self.__my_int(larg[1]), self.__my_int(larg[2]), color=larg[3])
+            r.draw()
+            self.LIST_FORM.append(r)
+        elif larg[0] == "ELLIPSE":
+            c = Ellipse(myturtle, self.__my_int(larg[1]), self.__my_int(larg[2]), color=larg[3])
+            c.draw()
+            self.LIST_FORM.append(c)
+
+    def move(self, agent, *larg):
+        self.LIST_FORM = Form.aim_move(self.LIST_FORM, larg[0], larg[1], larg[2], larg[3], larg[4])
+
+    def delete(self, agent, *larg):
+        self.LIST_FORM = Form.aim_delete(self.LIST_FORM, larg[0], larg[1], larg[2], larg[3])
 
     def __my_int(self, str):
-        print(int(str.split(".")[0]))
-        return  int(str.split(".")[0])
+        return int(str.split(".")[0])
 
 
 myturtle = MyTurtle()
@@ -124,4 +156,15 @@ myturtle.color("green")
 
 my_ivy = MyIvyPalette("Palette", "127.255.255.255:2010")
 
+
+r = Rectangle(myturtle, 500, 400, color="red")
+r.draw()
+
+e = Ellipse(myturtle, 100, 200, color="green")
+e.draw()
+
+
+Form.aim_delete(my_ivy.LIST_FORM, "RECTANGLE", 522, 403)
+
 myturtle.screen._root.mainloop()
+

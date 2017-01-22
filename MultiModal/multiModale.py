@@ -13,6 +13,8 @@ class automate:
         self.timer = None
         self.form = None
         self.xy = None
+        self.la_xy = None
+        self.ca_xy = None
         self.color = None
 
     def new_geste(self, agent, *larg):
@@ -20,9 +22,19 @@ class automate:
         print("state = " + str(self.state))
 
         if self.state == 0:
-            self.__reinit_timer()
-            self.form = larg[0]
-            self.state = 1
+            if larg[0] == "Rectangle" or larg[0] == "Cercle":
+                self.__reinit_timer()
+                self.form = larg[0]
+                self.state = 1
+
+            elif larg[0] == "Deplacer":
+                self.__reinit_timer()
+                self.state = 4
+
+            elif larg[0] == "Supprimer":
+                self.__reinit_timer()
+                self.state = 7
+
 
         print("endstate = " + str(self.state))
 
@@ -40,6 +52,16 @@ class automate:
             self.xy = (larg[0], larg[1])
             self.state = 1
 
+        elif self.state in [4, 5, 6]:
+            self.__reinit_timer()
+            self.xy = (larg[0], larg[1])
+
+        elif self.state == 8:
+            self.__reinit_timer()
+            self.xy = (larg[0], larg[1])
+            self.__maybe_send_delete()
+            self.state = 1
+
         print("endstate = " + str(self.state))
 
     def new_vocal_couleur(self, agent, *larg):
@@ -52,10 +74,30 @@ class automate:
             self.color = self.list_color[larg[0].split(" ")[0]]
             self.state = 3
 
-        elif self.state == 2:
+        elif self.state == 2 and larg[0].split(" ")[0] in self.list_color and int(larg[0].split(",")[1][0:2]) > 85:
+            print(larg[0].split(" ")[0])
             self.__reinit_timer()
-            self.color = larg[0]
+            self.color = self.list_color[larg[0].split(" ")[0]]
             self.state = 1
+
+        elif self.state == 5 and larg[0].split(" ")[0] in self.list_color and int(larg[0].split(",")[1][0:2]) > 85:
+            print(larg[0].split(" ")[0])
+            self.__reinit_timer()
+            self.color = self.list_color[larg[0].split(" ")[0]]
+            self.state = 5
+
+        elif self.state == 6 and larg[0].split(" ")[0] in self.list_color and int(larg[0].split(",")[1][0:2]) > 85:
+            print(larg[0].split(" ")[0])
+            self.__reinit_timer()
+            self.color = self.list_color[larg[0].split(" ")[0]]
+            self.state = 6
+
+        elif self.state == 7 and larg[0].split(" ")[0] in self.list_color and int(larg[0].split(",")[1][0:2]) > 85:
+            print(larg[0].split(" ")[0])
+            self.__reinit_timer()
+            self.color = self.list_color[larg[0].split(" ")[0]]
+            self.state = 7
+
         print("endstate = " + str(self.state))
 
     def new_vocal_action(self, agent, *larg):
@@ -65,28 +107,84 @@ class automate:
             self.__reinit_timer()
             self.__maybe_send_create()
             self.state = 1
+
+        if self.state == 4 and larg[0].split(" ")[0] == "la":
+            self.__reinit_timer()
+            self.la_xy = self.xy
+            self.state = 6
+
+        if self.state == 4 and larg[0].split(" ")[0] == "ça":
+            self.__reinit_timer()
+            self.ca_xy = self.xy
+            self.state = 5
+
+        if self.state == 5 and larg[0].split(" ")[0] == "la":
+            self.__reinit_timer()
+            self.la_xy = self.xy
+            self.__maybe_send_deplacer()
+            self.state = 4
+
+        if self.state == 7 and larg[0].split(" ")[0] in ("Ce retangle", "Cette ellipse"):
+            self.__reinit_timer()
+            if larg[0].split(" ")[0] == "Ce rectangle":
+                self.form = "RECTANGLE"
+            elif larg[0].split(" ")[0] == "Cette ellipse":
+                self.form = "ELLIPSE"
+            self.__maybe_send_deplacer()
+            self.state = 8
+
         print("endstate = " + str(self.state))
 
     def all(self, agent, *larg):
         print("all " + str(larg))
 
-    def timeout(self):
-        if self.state == 1:
+    def __timeout(self):
+        if self.state in [1, 4]:
+            self.form = None
             self.state = 0
-        if self.state in [1, 2]:
+        elif self.state in [2, 3]:
+            self.xy = None
+            self.color = None
             self.state = 1
+
+        elif self.state in [5, 6]:
+            self.ca_xy = None
+            self.la_xy = None
+            self.xy = None
+            self.color = None
+            self.state = 4
 
     def __reinit_timer(self):
         pass
-        """if self.timer:
+        if self.timer:
             self.timer.cancel()
-        self.timer = Timer(5, self.timeout)
-        self.timer.start()"""
+        self.timer = Timer(5, self.__timeout)
+        self.timer.start()
 
     def __maybe_send_create(self):
-        if None not in [self.form, self.xy, self.color]:
+        if None not in (self.form, self.xy, self.color):
             print("Send Forme")
-            IvySendMsg("MULTIMODAL forme={} x={} y={} couleur={}".format(self.form, self.xy[0], self.xy[1], self.color))
+            IvySendMsg("MULTIMODAL:creer  forme={} x={} y={} couleur={}".format(self.form, self.xy[0], self.xy[1], self.color))
+            self.xy = None
+            self.color = None
+
+    def __maybe_send_deplacer(self):
+        if None not in (self.la_xy, self.ca_xy):
+            print("Send Forme")
+            IvySendMsg("MULTIMODAL:deplacer ca_x={} ca_y={} la_x={} la_y={} couleur={}"
+                       .format(self.ca_xy[0], self.ca_xy[1], self.la_xy[0], self.la_xy[1],
+                               self.color if not None else ""))
+            self.ca_xy = None
+            self.la_xy = None
+            self.xy = None
+            self.color = None
+
+    def __maybe_send_delete(self):
+        if None not in (self.form, self.xy):
+            print("Send Forme")
+            IvySendMsg("MULTIMODAL:supprimer forme={} x={} y={} couleur={}"
+                       .format(self.form, self.xy[0], self.xy[1],
+                               self.color if not None else ""))
             self.xy = None
             self.color = None
 
