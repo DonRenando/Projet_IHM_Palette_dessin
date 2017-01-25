@@ -22,16 +22,16 @@ class automate:
         print("state = " + str(self.state))
 
         if self.state == 0:
-            if larg[0] == "Rectangle" or larg[0] == "Cercle":
+            if larg[0] == "RECTANGLE" or larg[0] == "ROND":
                 self.__reinit_timer()
                 self.form = larg[0]
                 self.state = 1
 
-            elif larg[0] == "Deplacer":
+            elif larg[0] == "Z":
                 self.__reinit_timer()
                 self.state = 4
 
-            elif larg[0] == "Supprimer":
+            elif larg[0] == "TRAIT":
                 self.__reinit_timer()
                 self.state = 7
 
@@ -60,7 +60,7 @@ class automate:
             self.__reinit_timer()
             self.xy = (larg[0], larg[1])
             self.__maybe_send_delete()
-            self.state = 1
+            self.state = 7
 
         print("endstate = " + str(self.state))
 
@@ -103,34 +103,34 @@ class automate:
     def new_vocal_action(self, agent, *larg):
         print("new vocal action" + str(larg))
         print("state = " + str(self.state))
-        if self.state == 1 and larg[0].split(" ")[0] == "ici":
+        if self.state == 1 and larg[0].split(" ")[0] == "ici" and int(larg[0].split(",")[1][0:2]) > 85:
             self.__reinit_timer()
             self.__maybe_send_create()
             self.state = 1
 
-        if self.state == 4 and larg[0].split(" ")[0] == "la":
+        elif self.state == 4 and larg[0].split(" ")[0] == "la" and int(larg[0].split(",")[1][0:2]) > 85:
             self.__reinit_timer()
             self.la_xy = self.xy
             self.state = 6
 
-        if self.state == 4 and larg[0].split(" ")[0] == "ça":
+        elif self.state == 4 and larg[0].split(" ")[0] == "ça" and int(larg[0].split(",")[1][0:2]) > 85:
             self.__reinit_timer()
             self.ca_xy = self.xy
             self.state = 5
 
-        if self.state == 5 and larg[0].split(" ")[0] == "la":
+        elif self.state == 5 and larg[0].split(" ")[0] == "la" and int(larg[0].split(",")[1][0:2]) > 85:
             self.__reinit_timer()
             self.la_xy = self.xy
             self.__maybe_send_deplacer()
             self.state = 4
 
-        if self.state == 7 and larg[0].split(" ")[0] in ("Ce retangle", "Cette ellipse"):
+        elif self.state == 7 and ("ce rectangle" in larg[0] or "ce rond" in larg[0]) and int(larg[0].split(",")[1][0:2]) > 85:
             self.__reinit_timer()
-            if larg[0].split(" ")[0] == "Ce rectangle":
+            if "ce rectangle" in larg[0]:
                 self.form = "RECTANGLE"
-            elif larg[0].split(" ")[0] == "Cette ellipse":
-                self.form = "ELLIPSE"
-            self.__maybe_send_deplacer()
+            if "ce rond" in larg[0]:
+                self.form = "ROND"
+            print(self.form)
             self.state = 8
 
         print("endstate = " + str(self.state))
@@ -142,6 +142,7 @@ class automate:
         if self.state in [1, 4]:
             self.form = None
             self.state = 0
+
         elif self.state in [2, 3]:
             self.xy = None
             self.color = None
@@ -164,13 +165,13 @@ class automate:
     def __maybe_send_create(self):
         if None not in (self.form, self.xy, self.color):
             print("Send Forme")
-            IvySendMsg("MULTIMODAL:creer  forme={} x={} y={} couleur={}".format(self.form, self.xy[0], self.xy[1], self.color))
+            IvySendMsg("MULTIMODAL:creer forme={} x={} y={} couleur={}".format(self.form, self.xy[0], self.xy[1], self.color))
             self.xy = None
             self.color = None
 
     def __maybe_send_deplacer(self):
         if None not in (self.la_xy, self.ca_xy):
-            print("Send Forme")
+            print("Send Deplacer")
             IvySendMsg("MULTIMODAL:deplacer ca_x={} ca_y={} la_x={} la_y={} couleur={}"
                        .format(self.ca_xy[0], self.ca_xy[1], self.la_xy[0], self.la_xy[1],
                                self.color if not None else ""))
@@ -180,8 +181,9 @@ class automate:
             self.color = None
 
     def __maybe_send_delete(self):
+        print(self.form)
         if None not in (self.form, self.xy):
-            print("Send Forme")
+            print("Send Delete")
             IvySendMsg("MULTIMODAL:supprimer forme={} x={} y={} couleur={}"
                        .format(self.form, self.xy[0], self.xy[1],
                                self.color if not None else ""))

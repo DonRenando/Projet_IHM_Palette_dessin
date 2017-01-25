@@ -29,7 +29,9 @@
 		  <item>ici</item>
 		  <item>ça</item>
 		  <item>là</item>
-		</one-of>   
+		  <item>ce rond</item>
+		  <item>ce rectangle</item>
+		</one-of>
       <tag>out.text  = "VOCAL action=" + meta.current().text;</tag>
   </rule>
   

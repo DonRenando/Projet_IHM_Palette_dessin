@@ -42,7 +42,7 @@ class Form:
     @staticmethod
     def aim_delete(l_form, type_form, x, y, color=""):
         for form in l_form:
-            if form.__class__.__name__.upper() == type_form and form.is_in(x, y) \
+            if form.__class__.__name__.upper() == type_form.upper() and form.is_in(x, y) \
                     and color in ("", form.color):
                 form.delete()
                 l_form.remove(form)
@@ -66,7 +66,7 @@ class Form:
         return l_form
 
 
-class Ellipse(Form):
+class Rond(Form):
     def __init__(self, t, x, y, radius=50, color="red"):
         super().__init__(t, x, y, color)
         self.radius = radius
@@ -135,16 +135,19 @@ class MyIvyPalette(myIvy.MyIvy):
             r = Rectangle(myturtle, self.__my_int(larg[1]), self.__my_int(larg[2]), color=larg[3])
             r.draw()
             self.LIST_FORM.append(r)
-        elif larg[0] == "ELLIPSE":
-            c = Ellipse(myturtle, self.__my_int(larg[1]), self.__my_int(larg[2]), color=larg[3])
+        elif larg[0] == "ROND":
+            c = Rond(myturtle, self.__my_int(larg[1]), self.__my_int(larg[2]), color=larg[3])
             c.draw()
             self.LIST_FORM.append(c)
 
     def move(self, agent, *larg):
-        self.LIST_FORM = Form.aim_move(self.LIST_FORM, larg[0], larg[1], larg[2], larg[3], larg[4])
+        self.LIST_FORM = Form.aim_move(self.LIST_FORM, larg[0],
+                                       self.__my_int(larg[1]), self.__my_int(larg[2]),
+                                       self.__my_int(larg[3]), color=larg[4])
 
     def delete(self, agent, *larg):
-        self.LIST_FORM = Form.aim_delete(self.LIST_FORM, larg[0], larg[1], larg[2], larg[3])
+        self.LIST_FORM = Form.aim_delete(self.LIST_FORM, larg[0],
+                                         self.__my_int(larg[1]), self.__my_int(larg[2]), color=larg[3])
 
     def __my_int(self, str):
         return int(str.split(".")[0])
@@ -155,16 +158,6 @@ myturtle.penup()
 myturtle.color("green")
 
 my_ivy = MyIvyPalette("Palette", "127.255.255.255:2010")
-
-
-r = Rectangle(myturtle, 500, 400, color="red")
-r.draw()
-
-e = Ellipse(myturtle, 100, 200, color="green")
-e.draw()
-
-
-Form.aim_delete(my_ivy.LIST_FORM, "RECTANGLE", 522, 403)
 
 myturtle.screen._root.mainloop()
 
