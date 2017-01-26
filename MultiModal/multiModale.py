@@ -27,11 +27,11 @@ class automate:
                 self.form = larg[0]
                 self.state = 1
 
-            elif larg[0] == "Z":
+            elif larg[0] == "TRAIT":
                 self.__reinit_timer()
                 self.state = 4
 
-            elif larg[0] == "TRAIT":
+            elif larg[0] == "Z":
                 self.__reinit_timer()
                 self.state = 7
 
@@ -108,7 +108,7 @@ class automate:
             self.__maybe_send_create()
             self.state = 1
 
-        elif self.state == 4 and larg[0].split(" ")[0] == "la" and int(larg[0].split(",")[1][0:2]) > 85:
+        elif self.state == 4 and larg[0].split(" ")[0] == "là" and int(larg[0].split(",")[1][0:2]) > 85:
             self.__reinit_timer()
             self.la_xy = self.xy
             self.state = 6
@@ -118,9 +118,15 @@ class automate:
             self.ca_xy = self.xy
             self.state = 5
 
-        elif self.state == 5 and larg[0].split(" ")[0] == "la" and int(larg[0].split(",")[1][0:2]) > 85:
+        elif self.state == 5 and larg[0].split(" ")[0] == "là" and int(larg[0].split(",")[1][0:2]) > 85:
             self.__reinit_timer()
             self.la_xy = self.xy
+            self.__maybe_send_deplacer()
+            self.state = 4
+
+        elif self.state == 6 and larg[0].split(" ")[0] == "ça" and int(larg[0].split(",")[1][0:2]) > 85:
+            self.__reinit_timer()
+            self.ca_xy = self.xy
             self.__maybe_send_deplacer()
             self.state = 4
 
@@ -139,7 +145,9 @@ class automate:
         print("all " + str(larg))
 
     def __timeout(self):
-        if self.state in [1, 4]:
+        print("timeout")
+        print("state = " + str(self.state))
+        if self.state in [1, 4, 7]:
             self.form = None
             self.state = 0
 
@@ -155,8 +163,14 @@ class automate:
             self.color = None
             self.state = 4
 
+        elif self.state == 8:
+            self.form = None
+            self.state = 4
+
+
+        print("endstate = " + str(self.state))
+
     def __reinit_timer(self):
-        pass
         if self.timer:
             self.timer.cancel()
         self.timer = Timer(5, self.__timeout)
@@ -174,7 +188,7 @@ class automate:
             print("Send Deplacer")
             IvySendMsg("MULTIMODAL:deplacer ca_x={} ca_y={} la_x={} la_y={} couleur={}"
                        .format(self.ca_xy[0], self.ca_xy[1], self.la_xy[0], self.la_xy[1],
-                               self.color if not None else ""))
+                               self.color))
             self.ca_xy = None
             self.la_xy = None
             self.xy = None
@@ -186,7 +200,7 @@ class automate:
             print("Send Delete")
             IvySendMsg("MULTIMODAL:supprimer forme={} x={} y={} couleur={}"
                        .format(self.form, self.xy[0], self.xy[1],
-                               self.color if not None else ""))
+                               self.color))
             self.xy = None
             self.color = None
 

@@ -43,7 +43,7 @@ class Form:
     def aim_delete(l_form, type_form, x, y, color=""):
         for form in l_form:
             if form.__class__.__name__.upper() == type_form.upper() and form.is_in(x, y) \
-                    and color in ("", form.color):
+                    and color in ("None", form.color):
                 form.delete()
                 l_form.remove(form)
                 break
@@ -57,7 +57,7 @@ class Form:
     def aim_move(l_form, x, y, tx, ty, color=""):
         for form in l_form:
             if form.is_in(x, y)\
-                    and color in ("", form.color):
+                    and color in ("None", form.color):
                 form.delete()
                 form.x = tx
                 form.y = ty
@@ -72,7 +72,7 @@ class Rond(Form):
         self.radius = radius
 
     def is_in(self, x, y):
-        return (x - self.x) ** 2 + (y - self.y) ** 2 < self.radius ** 2
+        return (x - self.x) ** 2 + (y - self.y - self.radius) ** 2 < self.radius ** 2
 
     def draw(self):
         self._setup_draw(self.x, self.y, self.color)
@@ -123,6 +123,7 @@ class MyTurtle(turtle.Turtle):
         IvySendMsg("PALETTE x={} y={}".format(x, y))
 
 
+
 class MyIvyPalette(myIvy.MyIvy):
     LIST_FORM = []
     def _createbind(self):
@@ -131,6 +132,7 @@ class MyIvyPalette(myIvy.MyIvy):
         IvyBindMsg(self.delete, '^MULTIMODAL:supprimer forme=(.*) x=(.*) y=(.*) couleur=(.*)')
 
     def create(self, agent, *larg):
+        print("create " + str(larg))
         if larg[0] == "RECTANGLE":
             r = Rectangle(myturtle, self.__my_int(larg[1]), self.__my_int(larg[2]), color=larg[3])
             r.draw()
@@ -141,11 +143,13 @@ class MyIvyPalette(myIvy.MyIvy):
             self.LIST_FORM.append(c)
 
     def move(self, agent, *larg):
-        self.LIST_FORM = Form.aim_move(self.LIST_FORM, larg[0],
+        print("move " + str(larg))
+        self.LIST_FORM = Form.aim_move(self.LIST_FORM, self.__my_int(larg[0]),
                                        self.__my_int(larg[1]), self.__my_int(larg[2]),
                                        self.__my_int(larg[3]), color=larg[4])
 
     def delete(self, agent, *larg):
+        print("delete " + str(larg))
         self.LIST_FORM = Form.aim_delete(self.LIST_FORM, larg[0],
                                          self.__my_int(larg[1]), self.__my_int(larg[2]), color=larg[3])
 

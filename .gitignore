@@ -47,3 +47,6 @@ pyvenv.cfg
 .venv
 *.egg
 pip-selfcheck.json
+
+# dolphin de merde
+.directory
